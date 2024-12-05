@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  username      String         @unique @db.VarChar(100)
+  password      String
+  isAdmin       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  otp           OTP?           @relation("UserToOTP")
+}
+
+model Article {
+  id              Int       @id @default(autoincrement())
+  title           String    @db.VarChar(200)
+  subtitle        String    @unique @db.VarChar(200)
+  metaDescription String    @db.VarChar(400)
+  description     String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  Category        Category? @relation(fields: [categoryId], references: [id])
+  categoryId      Int?
+}
+
+model Category {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(200)
+  subname         String    @unique @db.VarChar(200)
+  metaDescription String    @db.VarChar(400)
+  article         Article[]
+}
+
+
+model OTP {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otpCode   String
+  createdAt DateTime @updatedAt
+  userId    Int      @unique
+  user      User     @relation("UserToOTP", fields: [userId], references: [id])
+}

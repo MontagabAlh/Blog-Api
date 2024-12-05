@@ -13,6 +13,20 @@ export default {
         foreground: "var(--foreground)",
       },
     },
+    screens: {
+      xs: '350px',
+      sm: '576px',
+      md: '768px',
+      lg: '880px',
+      xl: '992px',
+      xxl: '1024px',
+      xxxl: '1200px',
+      xxxxl: '1400px'
+    },
+    fontFamily: {
+      geistSans: 'var(--font-geist-sans)',
+      geistMono: 'var(--font-geist-mono)',
+    }
   },
   plugins: [],
 } satisfies Config;
