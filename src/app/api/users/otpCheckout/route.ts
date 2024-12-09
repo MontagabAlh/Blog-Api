@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from 'bcryptjs'
 import { generateJWT } from "@/utils/token/toke";
 import hashing from "@/utils/hashing/hashing";
+import { serialize } from "cookie";
 
 /** 
 * @method POST
@@ -58,7 +59,9 @@ export async function POST(request: NextRequest) {
         if (timeDifference > 5) {
             return NextResponse.json({ message: `This OTP code has expired` }, { status: 401 });
         }
-
+        if (otp.isUsed) {
+            return NextResponse.json({ message: `This OTP code has been used` }, { status: 401 });
+        }
         const jwtPayload: JWTPayload = {
             id: user.id,
             username: user.username,
@@ -71,6 +74,14 @@ export async function POST(request: NextRequest) {
             sameSite: 'strict',
             path: '/',
             maxAge: 60 * 60 * 24 * 10
+        })
+        await prisma.oTP.update({
+            where: {
+                email: user.email
+            },
+            data: {
+                isUsed: true
+            }
         })
         return NextResponse.json({ ...user }, {
             status: 201,

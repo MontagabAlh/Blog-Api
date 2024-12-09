@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
             data: {
                 email: newUser.email,
                 otpCode: hashedOTPCode,
-                userId: newUser.id
+                userId: newUser.id,
+                isUsed: false
             },
         })
         sendOtpEmail(otpCode, newUser.email)

@@ -4,13 +4,6 @@ import jwt from "jsonwebtoken"
 import { JWTPayload } from "@/utils/types/types"
 import { jwtToken } from "@/utils/token/toke"
 
-/** 
-* @method GET
-* @route  ~/api/users/me
-* @description Get User Account
-* @access private (only user himself and Admins can Get his account)
-*/
-
 export async function GET(request: NextRequest) {
     try {
 
@@ -47,14 +40,15 @@ export async function GET(request: NextRequest) {
  * @swagger
  * /api/users/me:
  *   get:
- *     summary: Get User Account Information
- *     description: Fetch the account information of the logged-in user. Accessible by the user themselves and admins.
- *     tags: [Users]
+ *     summary: Retrieve the authenticated user's profile information.
+ *     description: This endpoint allows the user to fetch their own profile information. Only the authenticated user can access this endpoint.
+ *     tags:
+ *       - Users
  *     security:
- *       - authToken: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Successfully retrieved user account information.
+ *         description: Successfully retrieved user profile information.
  *         content:
  *           application/json:
  *             schema:
@@ -62,30 +56,61 @@ export async function GET(request: NextRequest) {
  *               properties:
  *                 id:
  *                   type: integer
- *                   example: 1
+ *                   description: The ID of the user.
+ *                   example: 10
  *                 username:
  *                   type: string
- *                   example: john_doe
+ *                   description: The username of the user.
+ *                   example: "mohammad"
  *                 email:
  *                   type: string
- *                   example: john_doe@example.com
+ *                   description: The email of the user.
+ *                   example: "ma0152260@gmail.com"
  *                 isAdmin:
  *                   type: boolean
- *                   example: false
+ *                   description: Whether the user has admin privileges.
+ *                   example: true
  *                 createdAt:
  *                   type: string
  *                   format: date-time
- *                   example: "2024-01-01T12:00:00Z"
+ *                   description: The date and time the user was created.
+ *                   example: "2024-12-06T06:05:57.440Z"
  *                 updatedAt:
  *                   type: string
  *                   format: date-time
- *                   example: "2024-01-01T12:00:00Z"
- *       401:
- *         description: No token provided or invalid token, access denied.
+ *                   description: The date and time the user profile was last updated.
+ *                   example: "2024-12-06T06:11:02.542Z"
  *       403:
- *         description: Only the user or admins can access the account information.
+ *         description: Only the user himself can access his account info.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "only user himself can get his Account Info, forbidden"
  *       404:
- *         description: User not found.
+ *         description: The requested user was not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "user not found"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "internal server error"
  */

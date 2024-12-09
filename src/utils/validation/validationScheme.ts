@@ -2,13 +2,33 @@ import { z } from 'zod'
 
 export const createArticleScheme = z.object({
     title: z.string().min(2).max(200),
+    subtitle: z.string().min(2).max(200),
+    metaDescription: z.string().min(2).max(400),
     description: z.string().min(10),
+    image: z.string().url(),
+    categoryId: z.number()
+})
+
+export const createCategoryScheme = z.object({
+    name: z.string().min(2).max(200),
+    subname: z.string().min(2).max(200),
+    metaDescription: z.string().min(2).max(400),
 })
 
 
 export const updateArticleScheme = z.object({
     title: z.string().min(2).max(200).optional(),
+    subtitle: z.string().min(2).max(200).optional(),
+    metaDescription: z.string().min(2).max(400).optional(),
     description: z.string().min(10).optional(),
+    image: z.string().url().optional(),
+    categoryId: z.number().optional(),
+})
+
+export const updateCategoryScheme = z.object({
+    name: z.string().min(2).max(200).optional(),
+    subname: z.string().min(2).max(200).optional(),
+    metaDescription: z.string().min(2).max(400).optional(),
 })
 
 

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
         const user = await prisma.user.findUnique({ where: queryField });
         if (!user) {
-            return NextResponse.json({ message: `Invalid ${body.email ? "email" : "username"} or password` }, { status: 404 });
+            return NextResponse.json({ message: `Invalid ${body.email ? "email" : "username"} or password` }, { status: 401 });
         }
         const addPassKey = hashing(body.password)
         const isPasswordMatch = await bcrypt.compare(addPassKey, user.password);
@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
                 data: {
                     email: user.email,
                     otpCode: hashedOTPCode,
-                    userId: user.id
+                    userId: user.id,
+                    isUsed: false
                 },
             })
             sendOtpEmail(otpCode, user.email)
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest) {
         await prisma.oTP.update({
             where: { email: user.email },
             data: {
-                otpCode: hashedOTPCode
+                otpCode: hashedOTPCode,
+                isUsed: false
             }
         })
         sendOtpEmail(otpCode, user.email)

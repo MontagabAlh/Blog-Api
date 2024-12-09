@@ -8,13 +8,6 @@ import sendOtpEmail from "@/utils/email/emailSeander"
 import { jwtToken } from "@/utils/token/toke"
 import hashing from "@/utils/hashing/hashing"
 
-/** 
-* @method GET
-* @route  ~/api/users/me/orderOtp
-* @description Order an OTP code
-* @access private (only user himself can Order the code)
-*/
-
 export async function GET(request: NextRequest) {
     try {
 
@@ -48,7 +41,8 @@ export async function GET(request: NextRequest) {
                     data: {
                         email: user.email,
                         otpCode: hashedPassword,
-                        userId: user.id
+                        userId: user.id,
+                        isUsed: false
                     },
                 })
                 sendOtpEmail(otpCode, user.email)
@@ -57,7 +51,8 @@ export async function GET(request: NextRequest) {
             await prisma.oTP.update({
                 where: { email: user.email },
                 data: {
-                    otpCode: hashedPassword
+                    otpCode: hashedPassword,
+                    isUsed: false
                 }
             })
             sendOtpEmail(otpCode, user.email)
@@ -75,16 +70,15 @@ export async function GET(request: NextRequest) {
  * @swagger
  * /api/users/me/orderOtp:
  *   get:
- *     summary: Order an OTP code for the user
- *     description: Allows a user to order an OTP code for verification purposes. The request is only accessible by the user themselves.
- *     tags: [OTP]
+ *     summary: Request OTP code for the authenticated user.
+ *     description: This endpoint allows the authenticated user to request an OTP code. Only the user themselves can request the OTP code.
+ *     tags:
+ *       - OTP
  *     security:
- *       - authToken: []
- *     requestBody:
- *       required: true
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: OTP code has been sent to the user's email.
+ *         description: Successfully requested OTP code.
  *         content:
  *           application/json:
  *             schema:
@@ -92,13 +86,39 @@ export async function GET(request: NextRequest) {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: OTP Code has been sent
- *       401:
- *         description: No token provided or invalid token, access denied.
+ *                   description: Success message.
+ *                   example: "OTP code sent successfully"
  *       403:
- *         description: Only the user themselves can order the OTP code.
+ *         description: Only the user themselves can request the OTP code.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "only user himself can Order the code, forbidden"
  *       404:
- *         description: User not found.
+ *         description: The requested user was not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "user not found"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "internal server error"
  */

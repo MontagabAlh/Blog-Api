@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  username      String         @unique @db.VarChar(100)
-  password      String
-  isAdmin       Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  otp           OTP?           @relation("UserToOTP")
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String    @unique @db.VarChar(100)
+  password  String
+  isAdmin   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  otp       OTP?      @relation("UserToOTP")
+  articles  Article[]
 }
 
 model Article {
@@ -23,11 +24,14 @@ model Article {
   title           String    @db.VarChar(200)
   subtitle        String    @unique @db.VarChar(200)
   metaDescription String    @db.VarChar(400)
+  image           String
   description     String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   Category        Category? @relation(fields: [categoryId], references: [id])
   categoryId      Int?
+  User            User?     @relation(fields: [userId], references: [id])
+  userId          Int?
 }
 
 model Category {
@@ -38,12 +42,12 @@ model Category {
   article         Article[]
 }
 
-
 model OTP {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   otpCode   String
   createdAt DateTime @updatedAt
+  isUsed    Boolean  @default(false)
   userId    Int      @unique
   user      User     @relation("UserToOTP", fields: [userId], references: [id])
 }

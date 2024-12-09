@@ -10,5 +10,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/api/users', '/api/users/email', '/api/users/profile/:path*', '/api/users/me/:path*', '/api/users/password']
+    matcher: ['/api/users', '/api/users/email', '/api/users/profile/:path*', '/api/users/me/:path*', '/api/users/password', '/api/articles/add', '/api/articles/singleArticle/:path*', '/api/category/add', '/api/category/singleCategory/:path*']
 }

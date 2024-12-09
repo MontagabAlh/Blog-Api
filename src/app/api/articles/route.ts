@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PostArticle } from "@/utils/types/types";
-import { createArticleScheme } from "@/utils/validation/validationScheme";
-import { Article} from "@prisma/client";
 import prisma from "@/utils/db/db";
+
 
 
 
@@ -15,48 +13,113 @@ import prisma from "@/utils/db/db";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
     try {
-        const articles = await prisma.article.findMany()
-        return NextResponse.json(articles, { status: 200 })
-    } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
-    }
-}
-
-
-/** 
-* @method POST
-* @route  ~/api/articles
-* @description Create New Article
-* @access public
-*/
-export async function POST(request: NextRequest) {
-    try {
-        const body = (await request.json()) as PostArticle
-
-        const validation = createArticleScheme.safeParse(body)
-        if (!validation.success) {
-            return NextResponse.json(
-                {
-                    message: validation.error.errors.map((error) => {
-                        return { [`${error.path[0]}`]: `${error.message}` };
-                    }),
-                },
-                { status: 400 }
-            );
-
-        }
-
-        const newArticle: Article = await prisma.article.create({
-            data: {
-                title: body.title,
-                description: body.description
+        const articles = await prisma.article.findMany({
+            select: {
+                id: true,
+                title: true,
+                subtitle: true,
+                metaDescription: true,
+                image: true,
+                description: true,
+                categoryId: true,
+                createdAt: true,
+                updatedAt: true,
+                Category: true
             }
-        });
-
-        return NextResponse.json(newArticle, { status: 201 })
+        })
+        return NextResponse.json(articles, { status: 200 },)
     } catch (error) {
         console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }
+
+
+/**
+ * @swagger
+ * /api/articles:
+ *   get:
+ *     summary: Retrieve a list of articles
+ *     description: Fetches all available articles along with their categories. This endpoint is public and does not require authentication.
+ *     tags:
+ *       - Articles
+ *     responses:
+ *       200:
+ *         description: A list of articles with their details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     description: Unique identifier for the article.
+ *                     example: 2
+ *                   title:
+ *                     type: string
+ *                     description: Title of the article.
+ *                     example: "fff"
+ *                   subtitle:
+ *                     type: string
+ *                     description: Subtitle of the article.
+ *                     example: "fff"
+ *                   metaDescription:
+ *                     type: string
+ *                     description: Meta description for SEO purposes.
+ *                     example: "next-js"
+ *                   image:
+ *                     type: string
+ *                     description: URL of the article's image.
+ *                     example: "http://dddd.ccc/fffmff.png"
+ *                   description:
+ *                     type: string
+ *                     description: Full content of the article.
+ *                     example: "sdfkm ;ldfgm ;lwe lmwem wenwrtkwem"
+ *                   categoryId:
+ *                     type: integer
+ *                     description: ID of the category the article belongs to.
+ *                     example: 1
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Timestamp of when the article was created.
+ *                     example: "2024-12-06T05:36:17.610Z"
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Timestamp of when the article was last updated.
+ *                     example: "2024-12-06T15:20:09.752Z"
+ *                   Category:
+ *                     type: object
+ *                     description: The category information.
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: Unique identifier for the category.
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         description: Name of the category.
+ *                         example: "new"
+ *                       subname:
+ *                         type: string
+ *                         description: Subname of the category.
+ *                         example: "new"
+ *                       metaDescription:
+ *                         type: string
+ *                         description: Meta description for the category.
+ *                         example: ""
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "internal server error"
+ */

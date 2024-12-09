@@ -2,7 +2,11 @@ export type Article = {
   userId: number;
   id: number;
   title: string;
+  subtitle: string;
+  metaDescription: string;
+  image: string;
   description: string;
+  categoryId: number;
 }
 
 export type Comment = {
@@ -15,7 +19,27 @@ export type Comment = {
 
 export type PostArticle = Omit<Article, 'userId' | 'id'>;
 
-export type UpdatePostArticle = Partial<Pick<Article, 'title' | 'description'>>;
+export type PostCategory = {
+  id: number,
+  name: string,
+  subname: string,
+  metaDescription: string,
+};
+
+export type UpdatePostArticle = {
+  title?: string;
+  subtitle?: string;
+  metaDescription?: string;
+  image?: string;
+  description?: string;
+  categoryId?: number;
+}
+
+export type UpdatePostCategory = {
+  name?: string;
+  subname?: string;
+  metaDescription?: string;
+}
 
 export type RegisterUser = {
   username: string,
