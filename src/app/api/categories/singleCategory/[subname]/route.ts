@@ -197,12 +197,18 @@ export async function DELETE(request: NextRequest, { params }: GetSingleArticleP
             return NextResponse.json({ message: "only Admins can update Category info, forbidden" }, { status: 403 })
         }
 
-        const category = await prisma.category.findUnique({ where: { subname: params.subname } })
+        const category = await prisma.category.findUnique({
+            where: { subname: params.subname },
+            include: { article: true }
+        })
         if (!category) {
             return NextResponse.json({ message: 'Category Not Found' }, { status: 404 })
         }
 
         await prisma.category.delete({ where: { subname: params.subname } })
+        const articlIds: number[] = category?.article.map(articlee => articlee.id);
+        await prisma.article.deleteMany({ where: { id: { in: articlIds } } })
+
         return NextResponse.json({ message: 'Category Deleted' }, { status: 200 })
     } catch (error) {
         console.log(error);

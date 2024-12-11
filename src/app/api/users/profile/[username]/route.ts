@@ -228,7 +228,7 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
  *                   description: Error message.
  *                   example: "internal server error"
  */
-ن
+
 
 
 export async function PUT(request: NextRequest, { params }: GetSingleArticleProps) {

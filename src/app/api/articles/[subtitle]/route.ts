@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/utils/db/db";
 
-
 /** 
-* @method GET
-* @route  ~/api/articles/:id
-* @description Get Single Article by ID
-* @access public
-*/
+ * @method GET
+ * @route  ~/api/articles/:subtitle
+ * @description Get Single Article by subtitle
+ * @access public
+ */
 
-interface GetSingleArticleProps {
-    params: { subtitle: string }
-}
-export async function GET(request: NextRequest, { params }: GetSingleArticleProps) {
+type GetSingleArticleProps = {
+    params: { subtitle: string };
+};
+
+export async function GET(request: NextRequest, context: GetSingleArticleProps) {
+    const { params } = context; // الحصول على المعاملات
     try {
         const article = await prisma.article.findUnique({
             where: { subtitle: params.subtitle },
@@ -26,16 +27,20 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
                 categoryId: true,
                 createdAt: true,
                 updatedAt: true,
-                Category: true
-            }
-        })
+                Category: true,
+            },
+        });
+
         if (!article) {
-            return NextResponse.json({ message: 'Article Not Found' }, { status: 404 })
+            return NextResponse.json({ message: "Article Not Found" }, { status: 404 });
         }
-        return NextResponse.json(article, { status: 200 })
+        return NextResponse.json(article, { status: 200 });
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        console.error(error);
+        return NextResponse.json(
+            { message: "Internal server error" },
+            { status: 500 }
+        );
     }
 }
 
