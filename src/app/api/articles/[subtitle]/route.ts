@@ -8,15 +8,14 @@ import prisma from "@/utils/db/db";
  * @access public
  */
 
-type GetSingleArticleProps = {
-    params: { subtitle: string };
-};
-
-export async function GET(request: NextRequest, context: GetSingleArticleProps) {
-    const { params } = context; // الحصول على المعاملات
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { subtitle: string } }
+) {
+    const { subtitle } = params; // استخراج الـ subtitle
     try {
         const article = await prisma.article.findUnique({
-            where: { subtitle: params.subtitle },
+            where: { subtitle }, // استخدام subtitle مباشرة
             select: {
                 id: true,
                 title: true,
@@ -43,6 +42,7 @@ export async function GET(request: NextRequest, context: GetSingleArticleProps) 
         );
     }
 }
+
 
 /**
  * @swagger
