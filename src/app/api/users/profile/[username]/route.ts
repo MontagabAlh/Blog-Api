@@ -60,9 +60,10 @@ interface GetSingleArticleProps {
 
 
 export async function GET(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { username } = await params;
     try {
         const user = await prisma.user.findUnique({
-            where: { username: params.username },
+            where: { username },
             select: {
                 id: true,
                 username: true,
@@ -88,8 +89,8 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
         }
 
         return NextResponse.json({ message: "only user himself can get his Account Info, forbidden" }, { status: 403 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }
@@ -232,8 +233,9 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
 
 
 export async function PUT(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { username } = await params;
     try {
-        const user = await prisma.user.findUnique({ where: { username: params.username } })
+        const user = await prisma.user.findUnique({ where: { username } })
         if (!user) {
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
@@ -258,7 +260,7 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         }
         if (Admin.isAdmin) {
             const updatedUser = await prisma.user.update({
-                where: { username: params.username },
+                where: { username },
                 data: {
                     isAdmin: body.isAdmin
                 }
@@ -268,8 +270,8 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         }
 
         return NextResponse.json({ message: "only Admins can update isAdmin Status, forbidden" }, { status: 403 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }
@@ -307,8 +309,9 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
 
 
 export async function DELETE(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { username } = await params;
     try {
-        const user = await prisma.user.findUnique({ where: { username: params.username } })
+        const user = await prisma.user.findUnique({ where: { username } })
         if (!user) {
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
@@ -320,13 +323,13 @@ export async function DELETE(request: NextRequest, { params }: GetSingleArticleP
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
         if (userFromToken.username === user.username || Admin.isAdmin) {
-            await prisma.user.delete({ where: { username: params.username } })
+            await prisma.user.delete({ where: { username } })
             return NextResponse.json({ message: "your account has been deleted" }, { status: 200 })
         }
 
         return NextResponse.json({ message: "only user himself can delet his profile, forbidden" }, { status: 403 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }

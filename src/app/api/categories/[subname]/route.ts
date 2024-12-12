@@ -13,9 +13,10 @@ interface GetSingleArticleProps {
     params: { subname: string }
 }
 export async function GET(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { subname } = await params;
     try {
         const category = await prisma.category.findUnique({
-            where: { subname: params.subname },
+            where: { subname },
             select: {
                 id: true,
                 name: true,
@@ -28,8 +29,8 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
             return NextResponse.json({ message: 'Category Not Found' }, { status: 404 })
         }
         return NextResponse.json(category, { status: 200 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }

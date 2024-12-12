@@ -7,12 +7,16 @@ import prisma from "@/utils/db/db";
  * @description Get Single Article by subtitle
  * @access public
  */
+interface SubtitleProps {
+    params: { subtitle: string }
+}
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { subtitle: string } }
+    { params }: SubtitleProps
 ) {
-    const { subtitle } = params; // استخراج الـ subtitle
+
+    const { subtitle } = await params; // استخراج الـ subtitle
     try {
         const article = await prisma.article.findUnique({
             where: { subtitle }, // استخدام subtitle مباشرة
@@ -34,8 +38,8 @@ export async function GET(
             return NextResponse.json({ message: "Article Not Found" }, { status: 404 });
         }
         return NextResponse.json(article, { status: 200 });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.error(error);
         return NextResponse.json(
             { message: "Internal server error" },
             { status: 500 }

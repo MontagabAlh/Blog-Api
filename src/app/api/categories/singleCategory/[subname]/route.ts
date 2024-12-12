@@ -17,6 +17,7 @@ interface GetSingleArticleProps {
 */
 
 export async function PUT(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { subname } = await params;
     try {
         const token = jwtToken(request)
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
@@ -41,7 +42,7 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         if (!user.isAdmin) {
             return NextResponse.json({ message: "only Admins can update Category info, forbidden" }, { status: 403 })
         }
-        const category = await prisma.category.findUnique({ where: { subname: params.subname } })
+        const category = await prisma.category.findUnique({ where: { subname } })
         if (!category) {
             return NextResponse.json({ message: 'Category Not Found' }, { status: 404 })
         }
@@ -52,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         }
 
         const updatedCatygory = await prisma.category.update({
-            where: { subname: params.subname },
+            where: { subname },
             data: {
                 name: body.name,
                 subname: body.subname,
@@ -61,8 +62,8 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         })
         return NextResponse.json(updatedCatygory, { status: 200 })
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }
@@ -185,6 +186,7 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
 */
 
 export async function DELETE(request: NextRequest, { params }: GetSingleArticleProps) {
+    const { subname } = await params;
     try {
         const token = jwtToken(request)
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
@@ -198,20 +200,20 @@ export async function DELETE(request: NextRequest, { params }: GetSingleArticleP
         }
 
         const category = await prisma.category.findUnique({
-            where: { subname: params.subname },
+            where: { subname },
             include: { article: true }
         })
         if (!category) {
             return NextResponse.json({ message: 'Category Not Found' }, { status: 404 })
         }
 
-        await prisma.category.delete({ where: { subname: params.subname } })
+        await prisma.category.delete({ where: { subname } })
         const articlIds: number[] = category?.article.map(articlee => articlee.id);
         await prisma.article.deleteMany({ where: { id: { in: articlIds } } })
 
         return NextResponse.json({ message: 'Category Deleted' }, { status: 200 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ message: "internal server error" }, { status: 500 })
     }
 }
