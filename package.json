@@ -8,7 +8,8 @@
     "start": "next start",
     "prisma": "npx prisma studio",
     "migrate": "npx prisma migrate dev",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
