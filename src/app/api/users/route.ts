@@ -16,9 +16,9 @@ import hashing from "@/utils/hashing/hashing"
 */
 
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const user = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!user) {
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
                     username: true,
                     email: true,
                     isAdmin: true,
-                    articles:true
+                    articles: true
                 }
             })
             return NextResponse.json(users, { status: 200 })
@@ -39,8 +39,15 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ message: "only Admins can get users, forbidden" }, { status: 403 })
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 
@@ -187,7 +194,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const user = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!user) {
@@ -216,8 +223,15 @@ export async function POST(request: NextRequest) {
         }
         return NextResponse.json({ message: "only Admins can Create new user, forbidden" }, { status: 403 })
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

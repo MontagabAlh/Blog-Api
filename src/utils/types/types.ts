@@ -17,7 +17,14 @@ export type Comment = {
   body: string;
 }
 
-export type PostArticle = Omit<Article, 'userId' | 'id'>;
+export type PostArticle = {
+  title: string;
+  subtitle: string;
+  metaDescription: string;
+  image: string;
+  description: string;
+  categoryId: number;
+};
 
 export type PostCategory = {
   id: number,

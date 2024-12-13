@@ -29,9 +29,16 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
             return NextResponse.json({ message: 'Category Not Found' }, { status: 404 })
         }
         return NextResponse.json(category, { status: 200 })
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

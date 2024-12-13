@@ -56,12 +56,19 @@ export async function POST(request: NextRequest) {
             },
         })
         sendOtpEmail(otpCode, newUser.email)
-        console.log("hashPassword: ",body.password , " ", addPassKey);
-        
+        console.log("hashPassword: ", body.password, " ", addPassKey);
+
         return NextResponse.json({ message: 'User Registered Successfuly - OTP Code has been sent' }, { status: 201 });
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

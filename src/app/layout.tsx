@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../style/globals.css";
-import ProgressProvider from "@/components/theme/Provider/ProgressProvider";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -29,9 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ProgressProvider>
-          {children}
-        </ProgressProvider>
+        {children}
       </body>
     </html>
   );

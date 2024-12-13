@@ -1,15 +1,24 @@
-import prisma from "@/utils/db/db"
-import { NextRequest, NextResponse } from "next/server"
-import jwt from "jsonwebtoken"
-import { JWTPayload } from "@/utils/types/types"
-import { jwtToken } from "@/utils/token/toke"
+import prisma from "@/utils/db/db";
+import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { JWTPayload } from "@/utils/types/types";
+import { jwtToken } from "@/utils/token/toke";
+export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
+        if (!process.env.JWT_PRIVET_KEY) {
+            throw new Error("JWT_PRIVET_KEY is not defined in environment variables.");
+        }
 
+        const token = jwtToken();
 
-        const token = jwtToken(request)
-        const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
+        if (!token) {
+            return NextResponse.json({ message: "Token not found" }, { status: 401 });
+        }
+
+        const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload;
+
         const user = await prisma.user.findUnique({
             where: { username: userFromToken.username },
             select: {
@@ -18,23 +27,33 @@ export async function GET(request: NextRequest) {
                 email: true,
                 isAdmin: true,
                 createdAt: true,
-                updatedAt: true
-            }
-        })
+                updatedAt: true,
+            },
+        });
+
         if (!user) {
-            return NextResponse.json({ message: "user not found" }, { status: 404 })
+            return NextResponse.json({ message: "user not found" }, { status: 404 });
         }
 
         if (userFromToken.username === user.username) {
-            return NextResponse.json(user, { status: 200 })
+            return NextResponse.json(user, { status: 200 });
         }
 
-        return NextResponse.json({ message: "only user himself can get his Account Info, forbidden" }, { status: 403 })
+        return NextResponse.json({ message: "only user himself can get his Account Info, forbidden" }, { status: 403 });
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
+
+
 
 /**
  * @swagger

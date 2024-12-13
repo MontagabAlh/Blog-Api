@@ -68,8 +68,15 @@ export async function POST(request: NextRequest) {
         sendOtpEmail(otpCode, user.email)
         return NextResponse.json({ message: 'Login Successfuly - OTP Code has been sent' }, { status: 200 });
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

@@ -78,7 +78,7 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
 
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const Admin = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!Admin) {
@@ -89,9 +89,16 @@ export async function GET(request: NextRequest, { params }: GetSingleArticleProp
         }
 
         return NextResponse.json({ message: "only user himself can get his Account Info, forbidden" }, { status: 403 })
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 
@@ -240,7 +247,7 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
 
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const body = (await request.json()) as UpdateUser
         const validation = updateUserSchema.safeParse(body)
@@ -270,9 +277,16 @@ export async function PUT(request: NextRequest, { params }: GetSingleArticleProp
         }
 
         return NextResponse.json({ message: "only Admins can update isAdmin Status, forbidden" }, { status: 403 })
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 
@@ -316,7 +330,7 @@ export async function DELETE(request: NextRequest, { params }: GetSingleArticleP
             return NextResponse.json({ message: "user not found" }, { status: 404 })
         }
 
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const Admin = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!Admin) {
@@ -328,8 +342,15 @@ export async function DELETE(request: NextRequest, { params }: GetSingleArticleP
         }
 
         return NextResponse.json({ message: "only user himself can delet his profile, forbidden" }, { status: 403 })
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }

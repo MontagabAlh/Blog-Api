@@ -7,19 +7,20 @@ import prisma from "@/utils/db/db";
  * @description Get Single Article by subtitle
  * @access public
  */
-interface SubtitleProps {
-    params: { subtitle: string }
-}
 
 export async function GET(
     request: NextRequest,
-    { params }: SubtitleProps
+    { params }: { params: { subtitle: string } }
 ) {
+    const { subtitle } = params;
 
-    const { subtitle } = await params; // استخراج الـ subtitle
+    if (!subtitle) {
+        return NextResponse.json({ error: 'Subtitle is required' }, { status: 400 });
+    }
+
     try {
         const article = await prisma.article.findUnique({
-            where: { subtitle }, // استخدام subtitle مباشرة
+            where: { subtitle },
             select: {
                 id: true,
                 title: true,
@@ -37,14 +38,20 @@ export async function GET(
         if (!article) {
             return NextResponse.json({ message: "Article Not Found" }, { status: 404 });
         }
-        return NextResponse.json(article, { status: 200 });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+        return NextResponse.json(article);
     } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
         return NextResponse.json(
-            { message: "Internal server error" },
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }
+    
 }
 
 

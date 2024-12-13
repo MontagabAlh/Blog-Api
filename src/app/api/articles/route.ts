@@ -29,8 +29,15 @@ export async function GET(request: NextRequest) {
         })
         return NextResponse.json(articles, { status: 200 },)
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

@@ -13,18 +13,26 @@ import prisma from "@/utils/db/db";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
     try {
-        const categories = await prisma.category.findMany({select: {
-            id: true,
-            name: true,
-            subname: true,
-            metaDescription: true,
-            article: true,
-        }
-    })
+        const categories = await prisma.category.findMany({
+            select: {
+                id: true,
+                name: true,
+                subname: true,
+                metaDescription: true,
+                article: true,
+            }
+        })
         return NextResponse.json(categories, { status: 200 },)
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

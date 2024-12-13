@@ -17,7 +17,7 @@ import hashing from "@/utils/hashing/hashing"
 
 export async function PUT(request: NextRequest) {
     try {
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const user = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!user) {
@@ -60,8 +60,15 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({ message: "only ser himself can update his Password, forbidden" }, { status: 403 })
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

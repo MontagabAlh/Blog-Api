@@ -28,10 +28,9 @@ export async function POST(request: NextRequest) {
                 },
                 { status: 400 }
             );
-
         }
 
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
         const user = await prisma.user.findUnique({ where: { username: userFromToken.username } })
         if (!user) {
@@ -40,10 +39,14 @@ export async function POST(request: NextRequest) {
         if (!user.isAdmin) {
             return NextResponse.json({ message: "only Admins can Create Article, forbidden" }, { status: 403 })
         }
-        
+
         const article = await prisma.article.findUnique({ where: { subtitle: body.subtitle } })
         if (article) {
             return NextResponse.json({ message: "This subtitle currently exists" }, { status: 401 })
+        }
+        const category = await prisma.category.findUnique({ where: { id: body.categoryId } })
+        if (!category) {
+            return NextResponse.json({ message: "This category does not exist" }, { status: 404 })
         }
 
         const newArticle: Article = await prisma.article.create({
@@ -54,13 +57,21 @@ export async function POST(request: NextRequest) {
                 image: body.image,
                 description: body.description,
                 categoryId: body.categoryId,
+                userId: user.id
             }
         });
         return NextResponse.json(newArticle, { status: 201 })
 
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message);
+        } else {
+            console.error('Unexpected error:', error);
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 

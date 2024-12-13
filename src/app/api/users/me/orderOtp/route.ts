@@ -1,5 +1,5 @@
 import prisma from "@/utils/db/db"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 import { JWTPayload } from "@/utils/types/types"
 import generateOTP from "@/utils/OTPCode/generateOTP"
@@ -8,11 +8,11 @@ import sendOtpEmail from "@/utils/email/emailSeander"
 import { jwtToken } from "@/utils/token/toke"
 import hashing from "@/utils/hashing/hashing"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
 
 
-        const token = jwtToken(request)
+        const token = jwtToken()
         const userFromToken = jwt.verify(token, process.env.JWT_PRIVET_KEY as string) as JWTPayload
 
         const user = await prisma.user.findUnique({
@@ -61,8 +61,15 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ message: "only user himself can Order the code, forbidden" }, { status: 403 })
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: "internal server error" }, { status: 500 })
+        if (error instanceof Error) {
+            console.error('Error fetching article:', error.message); 
+        } else {
+            console.error('Unexpected error:', error); 
+        }
+        return NextResponse.json(
+            { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
 
