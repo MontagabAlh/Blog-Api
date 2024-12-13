@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 import sendOtpEmail from "@/utils/email/emailSeander"
 import { jwtToken } from "@/utils/token/toke"
 import hashing from "@/utils/hashing/hashing"
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
